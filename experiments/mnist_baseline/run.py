@@ -12,7 +12,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from ENDIGate.models   import Net
-from ENDIGate.gates    import ENDIGateV4
+from ENDIGate.gates    import ENDIGateV0
 from ENDIGate.extract  import extract
 from ENDIGate.utils    import acc, count_params, compression_ratio, gate_summary
 from ENDIGate.training import warmup, pruning, finetune
@@ -36,7 +36,7 @@ tr = DataLoader(datasets.MNIST('data', train=True,  download=True, transform=tfm
 te = DataLoader(datasets.MNIST('data', train=False, transform=tfm), 128)
 
 # ── train ─────────────────────────────────────────────────────────────────────
-model        = Net(gate_cls=ENDIGateV4).to(DEVICE)
+model        = Net(gate_cls=ENDIGateV0).to(DEVICE)
 model, opt_w = warmup(model,   tr, te, DEVICE, epochs=5)
 model        = pruning(model,  tr, te, DEVICE, epochs=30, opt_w=opt_w)
 
@@ -72,7 +72,7 @@ with open(RESULTS_FILE, 'w') as f:
     f.write("MNIST BASELINE RESULTS\n")
     f.write("=" * 50 + "\n")
     f.write(f"Device        : {DEVICE}\n")
-    f.write(f"Gate version  : ENDIGateV4\n")
+    f.write(f"Gate version  : ENDIGateV0\n")
     f.write(f"Architecture  : {compact.architecture_str()}\n")
     f.write(f"Input features: {compact.input_size()}/784\n\n")
     f.write(f"Original  params : {count_params(model):,}\n")
