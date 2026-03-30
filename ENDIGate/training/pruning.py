@@ -50,8 +50,11 @@ def pruning(model, dataloader, test_loader, device,
 
         # cosine annealed lambda
         #lam = lam_max * (1 - math.cos(math.pi * ep / max(epochs - 1, 1))) / 2
-        lam_min = 0.01 
-        lam = lam_min + (lam_max - lam_min) * (1 - math.cos(math.pi * ep / max(epochs - 1, 1))) / 2
+        # or 
+        #lam_min = 0.01 
+        #lam = lam_min + (lam_max - lam_min) * (1 - math.cos(math.pi * ep / max(epochs - 1, 1))) / 2
+        # or
+        lam = lam_min + (lam_max - lam_min) * ep / max(epochs - 1, 1)
 
         # alpha annealing for V2+ gates
         model.set_epoch(ep, epochs)
