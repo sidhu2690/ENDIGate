@@ -1,3 +1,6 @@
+import torch
+import torch.nn as nn
+
 class ENDIGateV0(nn.Module):
     def __init__(self, n, tau=0.01, alpha=20.0, epsilon=0.05):
         super().__init__()
