@@ -6,35 +6,53 @@
 
 ---
 
-## What is ENDIGate?
+## Overview
 
-ENDIGate is a structured pruning method that learns **which neurons and input features to keep** during training — not after. It wraps any feedforward network with differentiable gates that open or close based on a combination of task loss and sparsity pressure.
+ENDIGate is a structured pruning method that learns which neurons and input features to retain during training, rather than after.
 
-The key idea: every neuron gets a soft gate value `g ∈ [0, 1]`. Neurons that consistently fail to contribute accumulate **strikes**. After enough strikes during stable training, they are permanently removed. The surviving network is then extracted as a smaller, standalone model.
+It augments a feedforward network with differentiable gates that adapt based on task loss and sparsity pressure. Each neuron is assigned a gate value `g ∈ [0, 1]`. Neurons that consistently fail to contribute accumulate strikes and are eventually removed.
 
----
-
-## How it works
-Phase 1 — Warmup: Train the base network normally until convergence
-Phase 2 — Gating: Gates learn alongside weights under sparsity pressure, Weak neurons accumulate strikes → get pruned
-Phase 3 — Extraction: Dead neurons removed, gates absorbed into weights
-Phase 4 — Fine-tuning: Compact network fine-tuned to recover accuracy
+The resulting model is a compact architecture extracted directly from the training process.
 
 ---
 
-### The Strike System
+## Method
 
-Unlike standard magnitude pruning or L0 regularisation, ENDIGate uses a **conservative kill rule**:
+ENDIGate operates in four phases:
 
-- A neuron must stay below threshold `τ` for `K` consecutive **stable** epochs
-- Stability is measured from the recent validation loss variance
-- Neurons can recover — if a gate rebounds before `K` strikes, the counter resets
+### 1. Warmup
+Train the base network until convergence.
 
-This prevents premature pruning during noisy or unstable training phases.
+### 2. Gating
+Learn gate values jointly with network weights under sparsity pressure. Neurons with persistently low gate values accumulate strikes and are marked for removal.
+
+### 3. Extraction
+Remove inactive neurons and absorb gate values into the remaining weights, yielding a smaller standalone network.
+
+### 4. Fine-tuning
+Fine-tune the extracted network to recover any performance loss.
 
 ---
 
-## Results on MNIST
+## Strike System
+
+ENDIGate uses a conservative pruning rule:
+
+- A neuron must remain below a threshold `τ`
+- For `K` consecutive stable epochs
+- Stability is determined by the variance of recent validation loss
+
+Neurons are not immediately removed:
+- If a gate value recovers before reaching `K` strikes, the counter resets
+- Pruning decisions are only finalized during stable training periods
+
+This avoids premature pruning during noisy optimization phases.
+
+---
+
+## Results (MNIST)
+
+<h3>Model Comparison</h3>
 
 <table>
   <tr>
@@ -57,16 +75,16 @@ This prevents premature pruning during noisy or unstable training phases.
   </tr>
 </table>
 
-**95.1% parameter reduction. Accuracy preserved.**
+**95.1% parameter reduction with improved accuracy.**
 
-The method also identifies which input pixels matter — only 66 of 784 positions are retained, forming a sparse yet sufficient feature set.
+The method also identifies a reduced set of input features, retaining only 66 of 784 pixels.
 
 ---
 
 ## Key Properties
 
-- **Differentiable** — gates are learned end-to-end via gradient descent  
-- **Structured** — removes whole neurons, not individual weights → real speedup  
-- **Conservative** — strike system prevents premature or irreversible pruning  
-- **Stability-aware** — pruning only committed during stable training windows  
-- **Three-phase pipeline** — clean separation of learning, discovery, compression  
+- Differentiable: gates are learned end-to-end via gradient descent  
+- Structured: removes entire neurons rather than individual weights  
+- Conservative: strike-based pruning prevents premature removal  
+- Stability-aware: pruning decisions depend on training stability  
+- Modular: distinct phases for learning, pruning, and refinement  
