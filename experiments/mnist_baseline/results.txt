@@ -1,13 +1,13 @@
 MNIST BASELINE RESULTS
 ==================================================
 Device        : cpu
-Gate version  : ENDIGateV0
-Architecture  : 174→117→74→46→10
-Input features: 174/784
+Gate version  : ENDIGateV5
+Architecture  : 63→56→47→41→10
+Input features: 63/784
 
 Original  params : 243,994
-Compact   params : 33,127
-Reduction        : 86.4%
+Compact   params : 8,651
+Reduction        : 96.5%
 
-Original  acc    : 97.29%
-Compact   acc    : 97.67%
+Original  acc    : 96.35%
+Compact   acc    : 96.36%
